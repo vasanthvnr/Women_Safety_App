@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'registration_page.dart';
 
 void main() {
   runApp(WomenSafetyApp());
@@ -39,19 +40,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/police_logo.png', // Add a police logo image to your "assets" folder.
-              width: 150,
-              height: 150,
-            ),
+            Image.asset('assets/police_logo.png', width: 150, height: 150),
             SizedBox(height: 20),
             Text(
               "Women Safety App",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.lightBlue,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
           ],
         ),
@@ -78,78 +71,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> requestPermissions() async {
-    final status = await [
+    Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
       Permission.camera,
       Permission.microphone,
       Permission.contacts,
     ].request();
 
-    if (status.values.any((element) => element.isDenied)) {
-      showMessage("Please grant all permissions to use the app.");
+    if (statuses.values.any((status) => status.isDenied)) {
+      showMessage("Some permissions are denied. Please grant them in settings.");
+    } else if (statuses.values.any((status) => status.isPermanentlyDenied)) {
+      showMessage("Some permissions are permanently denied. Please enable them in settings.");
+      openAppSettings();
     }
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void showLoginDialog({bool isEdit = false}) {
-    TextEditingController fullNameController =
-        TextEditingController(text: isEdit ? userName : "");
-    TextEditingController mobileController =
-        TextEditingController(text: isEdit ? mobileNumber : "");
-    TextEditingController emailController =
-        TextEditingController(text: isEdit ? email : "");
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isEdit ? "Edit Profile" : "Complete Profile"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: fullNameController,
-              decoration: InputDecoration(labelText: "Full Name"),
-            ),
-            TextField(
-              controller: mobileController,
-              decoration: InputDecoration(labelText: "Mobile Number"),
-              keyboardType: TextInputType.phone,
-            ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
-              keyboardType: TextInputType.emailAddress,
-            ),
-          ],
+  void navigateToRegistration({bool isEdit = false}) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegistrationPage(
+          existingName: isEdit ? userName : null,
+          existingEmail: isEdit ? email : null,
+          existingMobile: isEdit ? mobileNumber : null,
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                userName = fullNameController.text;
-                mobileNumber = mobileController.text;
-                email = emailController.text;
-                isLoggedIn = true;
-              });
-              Navigator.pop(context);
-              showMessage(isEdit ? "Profile updated!" : "Profile created!");
-            },
-            child: Text("Submit"),
-          ),
-        ],
       ),
     );
+
+    if (result != null) {
+      setState(() {
+        userName = result['name'];
+        mobileNumber = result['mobile'];
+        email = result['email'];
+        isLoggedIn = true;
+      });
+    }
   }
 
   void showProfileDetails() {
@@ -169,14 +129,12 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              showLoginDialog(isEdit: true);
+              navigateToRegistration(isEdit: true);
             },
             child: Text("Edit"),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             child: Text("Close"),
           ),
         ],
@@ -203,11 +161,8 @@ class _HomePageState extends State<HomePage> {
             )
           else
             TextButton(
-              onPressed: () => showLoginDialog(),
-              child: Text(
-                "Login",
-                style: TextStyle(color: Colors.white),
-              ),
+              onPressed: navigateToRegistration,
+              child: Text("Login", style: TextStyle(color: Colors.white)),
             ),
         ],
       ),
@@ -227,23 +182,16 @@ class _HomePageState extends State<HomePage> {
               Center(
                 child: Card(
                   elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Instructions:",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
+                        Text("Instructions:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         SizedBox(height: 8),
-                        Text("1.User Must complete the login credentials."),
-                        Text(
-                            "2. When you feel unsafe, press the volume up button 2 times to alert the police."),
+                        Text("1. Open the app and complete the login."),
+                        Text("2. When you feel unsafe, press the volume up button 2 times to alert the police."),
                       ],
                     ),
                   ),
@@ -257,11 +205,7 @@ class _HomePageState extends State<HomePage> {
         color: Colors.lightBlue,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(
-            "© 2025 Women Safety App",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text("© 2025 Women Safety App", textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
         ),
       ),
     );
