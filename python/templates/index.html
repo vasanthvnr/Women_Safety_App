@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1c1c1c;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+          }
+          
+          .login-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+          }
+          
+          .login-container {
+            text-align: center;
+            background-color: #2e2e2e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #000;
+          }
+          
+          .login-container h1 {
+            margin-bottom: 20px;
+            color: #f39c12;
+          }
+          
+          .login-container input {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            border: none;
+            border-radius: 5px;
+          }
+          
+          .login-container button {
+            background-color: #f39c12;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+          }
+          
+          .index-container {
+            padding: 20px;
+          }
+          
+          .index-container table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2e2e2e;
+          }
+          
+          .index-container th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+          }
+          
+          .index-container th {
+            background-color: #f39c12;
+            color: #000;
+          }
+        </style>          
+</head>
+<body>
+    <div class="index-container">
+        <h1>Police Alert System</h1>
+        <audio id="buzzer-sound" src="../static/mixkit-signal-alert-771.wav"></audio>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr>
+                    <td>{{ alert.id }}</td>
+                    <td>{{ alert.username }}</td>
+                    <td>{{ alert.mobile }}</td>
+                    <td>{{ alert.email }}</td>
+                    <td>{{ alert.location }}</td>
+                    <td>{{ alert.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
